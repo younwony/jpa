@@ -13,14 +13,19 @@ public class Jpa1Application {
         EntityTransaction tx = em.getTransaction(); // JPA의 모든 데이터 변경은 트랜잭션 안에서 실행해야 한다.
         tx.begin();  // 트랜잭션 시작
 
-        Member member = new Member();  // 비영속 상태
-        member.setId(1L);
-        member.setName("HelloJPA");
+        try {
+//            Member member = em.find(Member.class, 2L);// 데이터 조회
+            em.createQuery("select m from Member m", Member.class)
+                    .getResultList()
+                    .forEach(m -> System.out.println("m = " + m.getName())); // JPQL을 사용한 데이터 조회
 
-        tx.commit();
-        em.persist(member);
+            tx.commit();
+        } catch (Exception e) {
+            tx.rollback();
+        } finally {
+            em.close();
+        }
 
-        em.close();
         emf.close();
     }
 
