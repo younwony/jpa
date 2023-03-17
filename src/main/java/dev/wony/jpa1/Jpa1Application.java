@@ -1,13 +1,12 @@
 package dev.wony.jpa1;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
-@SpringBootApplication
 public class Jpa1Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(Jpa1Application.class, args);
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa1");
     }
 
 }
