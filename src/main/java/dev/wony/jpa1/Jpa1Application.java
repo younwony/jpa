@@ -14,10 +14,17 @@ public class Jpa1Application {
         tx.begin();  // 트랜잭션 시작
 
         try {
-//            Member member = em.find(Member.class, 2L);// 데이터 조회
-            em.createQuery("select m from Member m", Member.class)
-                    .getResultList()
-                    .forEach(m -> System.out.println("m = " + m.getName())); // JPQL을 사용한 데이터 조회
+            // 비영속 상태
+            Member member = new Member();
+            member.setId(1L);
+            member.setName("HelloA");
+
+            System.out.println("=== BEFORE ===");
+            em.persist(member); // 영속성 컨텍스트에 저장
+            em.detach(member); // 영속성 컨텍스트에서 분리, DB에는 저장되지 않음, 영속성 컨텍스트에서만 관리
+            System.out.println("=== AFTER ===");
+
+            em.remove(member); // 영속성 컨텍스트에서 삭제, DB에서 삭제
 
             tx.commit();
         } catch (Exception e) {
