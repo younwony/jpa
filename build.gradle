@@ -23,3 +23,10 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// Gradle Build 시 자동으로 리소스 파일을 빌드 폴더로 복사 -> 안할 경우 Entity 를 읽지 못함. + 추가설정 build tool 을 gradle 로해야함 (intelliJ x)
+sourceSets {
+    main {
+        output.resourcesDir = java.outputDir
+    }
+}
