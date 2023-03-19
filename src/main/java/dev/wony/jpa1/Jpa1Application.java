@@ -15,11 +15,10 @@ public class Jpa1Application {
 
         try {
             // 비영속 상태
-            Member member = new Member( 3L, "memberA");
-            Member member2 = new Member( 4L, "memberB");
-
+            Member member = new Member( 5L, "memberA");
             em.persist(member); // 영속성 컨텍스트에 저장
-            em.persist(member2); // 영속성 컨텍스트에 저장
+
+            em.flush(); // 영속성 컨텍스트의 변경 내용을 데이터베이스에 동기화, 1차 캐쉬 유지
 
             tx.commit();
         } catch (Exception e) {
