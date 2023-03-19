@@ -15,6 +15,7 @@
             <property name="hibernate.show_sql" value="true"/> <!-- show sql in console -->
             <property name="hibernate.format_sql" value="true"/> <!-- format sql in console -->
             <property name="hibernate.use_sql_comments" value="true"/> <!-- show comments in sql in console -->
+            <property name="hibernate.jdbc.batch_size" value="10"/> <!-- batch size -->
 <!--            <property name="hibernate.hbm2ddl.auto" value="create"/>-->
         </properties>
     </persistence-unit>

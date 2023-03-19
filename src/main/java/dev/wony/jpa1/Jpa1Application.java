@@ -15,16 +15,11 @@ public class Jpa1Application {
 
         try {
             // 비영속 상태
-            Member member = new Member();
-            member.setId(1L);
-            member.setName("HelloA");
+            Member member = new Member( 3L, "memberA");
+            Member member2 = new Member( 4L, "memberB");
 
-            System.out.println("=== BEFORE ===");
             em.persist(member); // 영속성 컨텍스트에 저장
-            em.detach(member); // 영속성 컨텍스트에서 분리, DB에는 저장되지 않음, 영속성 컨텍스트에서만 관리
-            System.out.println("=== AFTER ===");
-
-            em.remove(member); // 영속성 컨텍스트에서 삭제, DB에서 삭제
+            em.persist(member2); // 영속성 컨텍스트에 저장
 
             tx.commit();
         } catch (Exception e) {
