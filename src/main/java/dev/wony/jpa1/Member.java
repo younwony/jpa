@@ -1,5 +1,6 @@
 package dev.wony.jpa1;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -10,6 +11,12 @@ public class Member {
 
     @Id
     private Long id;
+
+    // 매핑할 테이블의 컬럼 지정 - 기본값은 필드 이름을 사용 (단어의 첫 글자는 대문자로) - name -> NAME 다른 이름을 사용하고 싶을 경우 사용
+    // nullable = false -> null 허용하지 않음
+    // length = 10 -> 길이 제한
+    // unique = true -> 중복 허용하지 않음
+    @Column(name = "name", nullable = false, length = 10, unique = true)
     private String name;
 
     // JPA 스펙상 엔티티 클래스에는 기본 생성자가 필수
