@@ -3,7 +3,9 @@ package dev.wony.jpa1;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-@Entity
+// @Table(name = "MEMBER") // 엔티티와 매핑할 테이블 지정 - 기본값은 엔티티 이름을 사용 (단어의 첫 글자는 대문자로) - Member -> MEMBER, 테이블 이름이 다를 경우 사용
+//@Entity(name = "Member") // 엔티티 클래스 이름 지정 - 기본값은 클래스 이름을 사용 (단어의 첫 글자는 소문자로) - Member -> member, 다른 패키지에 같은 이름의 클래스가 있을 경우 사용 - dev.wony.jpa1.Member -> Member
+@Entity // JPA가 관리하는 엔티티 클래스
 public class Member {
 
     @Id
