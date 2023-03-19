@@ -18,7 +18,9 @@ public class Jpa1Application {
             Member member = new Member( 5L, "memberA");
             em.persist(member); // 영속성 컨텍스트에 저장
 
-            em.flush(); // 영속성 컨텍스트의 변경 내용을 데이터베이스에 동기화, 1차 캐쉬 유지
+            em.detach(member); // 영속성 컨텍스트에서 분리 - 특정 Entity 만
+            em.clear(); // 영속성 컨텍스트 초기화 - 모든 Entity
+            em.close(); // 영속성 컨텍스트 종료
 
             tx.commit();
         } catch (Exception e) {
