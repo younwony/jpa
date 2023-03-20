@@ -14,6 +14,9 @@ public class Jpa1Application {
         tx.begin();  // 트랜잭션 시작
 
         try {
+            Member member = new Member();
+            member.setName("member1");
+            em.persist(member); // 영속성 컨텍스트에 저장
             tx.commit(); // 트랜잭션 커밋
         } catch (Exception e) {
             tx.rollback();
