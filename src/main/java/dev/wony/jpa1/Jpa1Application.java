@@ -14,15 +14,7 @@ public class Jpa1Application {
         tx.begin();  // 트랜잭션 시작
 
         try {
-            // 비영속 상태
-            Member member = new Member( 5L, "memberA");
-            em.persist(member); // 영속성 컨텍스트에 저장
-
-            em.detach(member); // 영속성 컨텍스트에서 분리 - 특정 Entity 만
-            em.clear(); // 영속성 컨텍스트 초기화 - 모든 Entity
-            em.close(); // 영속성 컨텍스트 종료
-
-            tx.commit();
+            tx.commit(); // 트랜잭션 커밋
         } catch (Exception e) {
             tx.rollback();
         } finally {
