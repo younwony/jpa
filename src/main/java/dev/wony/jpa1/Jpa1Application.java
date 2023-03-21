@@ -16,7 +16,13 @@ public class Jpa1Application {
         try {
             Member member = new Member();
             member.setName("member1");
-            em.persist(member); // 영속성 컨텍스트에 저장
+            System.out.println("===============");
+            em.persist(member);
+            // Identity 전략을 사용하면 persist()를 호출한 직후에 식별자가 즉시 할당된다. - 해당 전략만이 persist()를 호출할 때 바로 INSERT SQL을 데이터베이스에 전송, 쓰기 지연 SQL 저장소를 사용하지 않는다.
+            // SEQUENCE 전략을 사용하면 persist()를 호출한 직후에 식별자가 즉시 할당되지 않는다. - 해당 전략은 persist()를 호출할 때 INSERT SQL을 데이터베이스에 전송하지 않고, 식별자를 조회하는 SELECT SQL을 데이터베이스에 전송한다.
+            // TABLE 전략을 사용하면 persist()를 호출한 직후에 식별자가 즉시 할당되지 않는다.
+            System.out.println("member.getId() = " + member.getId());
+            System.out.println("===============");
             tx.commit(); // 트랜잭션 커밋
         } catch (Exception e) {
             tx.rollback();
