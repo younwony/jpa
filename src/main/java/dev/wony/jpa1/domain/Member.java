@@ -12,6 +12,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,6 +34,8 @@ public class Member {
     private String city;
     private String street;
     private String zipcode;
+    @OneToMany(mappedBy = "member")
+    private List<Order> orders = new ArrayList<>(); // 초기화를 해주는 것이 좋다. (null이 아닌 빈 컬렉션을 사용하자) - NPE를 방지할 수 있다. 관례상 초기화를 해주는 것이 좋다.
 
     // 연관관계 편의 메소드, 양방향 연관관계일 때 사용한다. 양방향 연관관계일 때는 양쪽에 값을 세팅해줘야 한다.
     public void changeTeam(Team team) {
