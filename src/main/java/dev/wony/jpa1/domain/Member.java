@@ -29,7 +29,6 @@ public class Member {
     private String city;
     private String street;
     private String zipcode;
-
     @OneToOne
     @JoinColumn(name = "locker_id")
     private Locker locker;

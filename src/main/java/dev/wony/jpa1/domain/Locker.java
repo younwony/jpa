@@ -12,7 +12,6 @@ import javax.persistence.OneToOne;
 @Getter
 @Entity
 public class Locker {
-
     @Id
     @GeneratedValue
     private Long id;

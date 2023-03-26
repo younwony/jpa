@@ -1,15 +1,11 @@
 package dev.wony.jpa1;
 
-import dev.wony.jpa1.domain.Member;
-import dev.wony.jpa1.domain.Order;
-import dev.wony.jpa1.domain.OrderItem;
-import dev.wony.jpa1.domain.Team;
+import dev.wony.jpa1.domain.Movie;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import java.util.List;
 
 public class Jpa1Application {
 
@@ -21,8 +17,20 @@ public class Jpa1Application {
 
         try {
 
-            tx.commit();
+            Movie movie = new Movie();
+            movie.setDirector("A");
+            movie.setActor("B");
+            movie.setName("C");
+            movie.setPrice(10000);
+            em.persist(movie);
 
+            em.flush();
+            em.clear();
+
+            Movie findMovie = em.find(Movie.class, movie.getId());
+            System.out.println("findMovie = " + findMovie);
+
+            tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
             tx.rollback();
