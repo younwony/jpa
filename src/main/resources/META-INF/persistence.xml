@@ -16,7 +16,7 @@
             <property name="hibernate.format_sql" value="true"/> <!-- format sql in console -->
             <property name="hibernate.use_sql_comments" value="true"/> <!-- show comments in sql in console -->
             <property name="hibernate.jdbc.batch_size" value="10"/> <!-- batch size -->
-<!--            <property name="hibernate.hbm2ddl.auto" value="create"/> &lt;!&ndash; create, update, validate, create-drop &ndash;&gt;-->
+<!--            <property name="hibernate.hbm2ddl.auto" value="update"/> &lt;!&ndash; create, update, validate, create-drop &ndash;&gt;-->
         </properties>
     </persistence-unit>
 </persistence>

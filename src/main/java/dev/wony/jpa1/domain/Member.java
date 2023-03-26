@@ -8,7 +8,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +27,13 @@ public class Member {
     private String city;
     private String street;
     private String zipcode;
+
+    @OneToOne
+    @JoinColumn(name = "locker_id")
+    private Locker locker;
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>(); // 초기화를 해주는 것이 좋다. (null이 아닌 빈 컬렉션을 사용하자) - NPE를 방지할 수 있다. 관례상 초기화를 해주는 것이 좋다.
 }
