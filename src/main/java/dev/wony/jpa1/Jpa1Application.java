@@ -21,10 +21,21 @@ public class Jpa1Application {
 
         try {
 
-            Order order = new Order();
-            order.addOrderItem(new OrderItem());
+            Member member = new Member();
+            member.setUsername("member2");
+
+            em.persist(member);
+
+            Team team = new Team();
+            team.setName("team2");
+            team.getMembers().add(member);
+
+            em.persist(team);
+
+            tx.commit();
 
         } catch (Exception e) {
+            e.printStackTrace();
             tx.rollback();
         } finally {
             em.close();
