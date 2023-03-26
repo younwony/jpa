@@ -18,7 +18,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
 
-    implementation 'org.hibernate:hibernate-core:5.4.8.Final'
+    implementation 'org.hibernate:hibernate-core:5.4.32.Final'
     implementation 'com.h2database:h2:1.4.200'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
