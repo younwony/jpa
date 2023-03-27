@@ -14,7 +14,7 @@ import javax.persistence.ManyToOne;
 @Setter
 @Getter
 @Entity
-public class OrderItem {
+public class OrderItem extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "order_item_id", nullable = false)

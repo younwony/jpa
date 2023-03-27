@@ -1,7 +1,6 @@
 package dev.wony.jpa1;
 
-import dev.wony.jpa1.domain.Member;
-import dev.wony.jpa1.domain.Movie;
+import dev.wony.jpa1.domain.Book;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -17,18 +16,12 @@ public class Jpa1Application {
         tx.begin();  // 트랜잭션 시작
 
         try {
+            Book book = new Book();
+            book.setName("JPA1 BOOK");
+            book.setAuthor("JPA1 AUTHOR");
+            book.setIsbn("JPA1 ISBN");
 
-            Member member = new Member();
-            member.setUsername("member1");
-            member.setCity("서울");
-            member.setStreet("강가");
-            member.setZipcode("12345");
-            member.setCreatedDate("2021-01-01");
-            member.setCreatedBy("wony");
-            member.setLastModifiedDate("2021-01-01");
-            member.setLastModifiedBy("wony");
-
-            em.persist(member);
+            em.persist(book);
 
             tx.commit();
         } catch (Exception e) {

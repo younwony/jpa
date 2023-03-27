@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 // N:M일 경우 연결 테이블로 승격하여 사용 권장
-public class MemberProduct {
+public class MemberProduct extends BaseEntity{
 
     @Id
     @GeneratedValue

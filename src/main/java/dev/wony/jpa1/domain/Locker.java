@@ -11,7 +11,7 @@ import javax.persistence.OneToOne;
 @Setter
 @Getter
 @Entity
-public class Locker {
+public class Locker extends BaseEntity{
     @Id
     @GeneratedValue
     private Long id;

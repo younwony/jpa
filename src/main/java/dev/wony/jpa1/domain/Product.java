@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Entity
-public class Product {
+public class Product extends BaseEntity{
 
     @Id
     @GeneratedValue

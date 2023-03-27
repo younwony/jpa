@@ -15,7 +15,7 @@ import java.util.List;
 
 @Getter
 @Entity
-public class Category {
+public class Category extends BaseEntity{
 
     @Id
     @GeneratedValue
