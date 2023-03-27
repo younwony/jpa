@@ -9,8 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -20,7 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-public class Member {
+public class Member extends BaseEntity{ // 상속을 받는다. , 상속을 받으면 부모의 필드도 컬럼으로 인식한다. extends 는 @Entity 나 @MappedSuperclass 만 가능하다.
     @Id
     @Column(name = "member_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)

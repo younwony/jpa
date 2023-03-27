@@ -1,5 +1,6 @@
 package dev.wony.jpa1;
 
+import dev.wony.jpa1.domain.Member;
 import dev.wony.jpa1.domain.Movie;
 
 import javax.persistence.EntityManager;
@@ -17,18 +18,17 @@ public class Jpa1Application {
 
         try {
 
-            Movie movie = new Movie();
-            movie.setDirector("A");
-            movie.setActor("B");
-            movie.setName("C");
-            movie.setPrice(10000);
-            em.persist(movie);
+            Member member = new Member();
+            member.setUsername("member1");
+            member.setCity("서울");
+            member.setStreet("강가");
+            member.setZipcode("12345");
+            member.setCreatedDate("2021-01-01");
+            member.setCreatedBy("wony");
+            member.setLastModifiedDate("2021-01-01");
+            member.setLastModifiedBy("wony");
 
-            em.flush();
-            em.clear();
-
-            Movie findMovie = em.find(Movie.class, movie.getId());
-            System.out.println("findMovie = " + findMovie);
+            em.persist(member);
 
             tx.commit();
         } catch (Exception e) {
