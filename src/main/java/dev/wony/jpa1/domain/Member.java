@@ -28,7 +28,7 @@ public class Member extends BaseEntity{ // 상속을 받는다. , 상속을 받�
     private String city;
     private String street;
     private String zipcode;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "locker_id")
     private Locker locker;
 //    @ManyToOne(fetch = FetchType.EAGER) // JPQL을 실행할 때, 연관된 엔티티를 함께 조회한다. N+1 문제가 발생할 수 있다.
