@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.util.List;
 
 public class Jpa1Application {
 
@@ -31,10 +32,17 @@ public class Jpa1Application {
             child2.setName("child2");
             parent.addChild(child2);
 
+            em.persist(child1); // casecade = CascadeType.ALL, persist(parent)만 해도 child1, child2도 persist된다.
+            em.persist(child2); // casecade = CascadeType.ALL, persist(parent)만 해도 child1, child2도 persist된다.
             em.persist(parent); // casecade = CascadeType.ALL, persist(parent)만 해도 child1, child2도 persist된다.
 
             em.flush();
             em.clear();
+
+            Parent findParent = em.find(Parent.class, parent.getId());
+//            em.remove(findParent); // casecade = CascadeType.ALL, remove(parent)만 해도 child1, child2도 remove된다.
+            List<Child> findParentChildren = findParent.getChildren();
+            findParentChildren.remove(0); // 고아 객체 제거: 부모와 연관관계가 끊어진 객체는 제거한다. (연관관계가 끊어진 객체는 부모가 관리하지 않는다.),
 
             tx.commit();
         } catch (Exception e) {
