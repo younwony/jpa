@@ -1,13 +1,13 @@
 package dev.wony.jpa1;
 
+import dev.wony.jpa1.domain.Child;
 import dev.wony.jpa1.domain.Member;
-import dev.wony.jpa1.domain.Team;
+import dev.wony.jpa1.domain.Parent;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import java.util.List;
 
 public class Jpa1Application {
 
@@ -19,29 +19,22 @@ public class Jpa1Application {
 
         try {
 
-            Team team = new Team();
-            team.setName("teamA");
+            Parent parent = new Parent();
+            parent.setName("parent1");
 
-            Member member = new Member();
-            member.setUsername("member1");
-            member.setTeam(team);
-            em.persist(member);
 
-            em.persist(team);
+            Child child1 = new Child();
+            child1.setName("child1");
+            parent.addChild(child1);
+
+            Child child2 = new Child();
+            child2.setName("child2");
+            parent.addChild(child2);
+
+            em.persist(parent); // casecade = CascadeType.ALL, persist(parent)만 해도 child1, child2도 persist된다.
 
             em.flush();
             em.clear();
-
-            /*Member findMember = em.find(Member.class, member.getId());
-            Team findTeam = findMember.getTeam();
-            System.out.println("findTeam = " + findTeam.getName());*/
-
-            List<Member> selectMFromMemberM = em.createQuery("select m from Member m", Member.class)
-                    .getResultList();
-
-            // SQL : select m from Member m
-            // JPQL : select m from Member m
-            // 즉시 로딩(FetchType.EAGER)일 경우 Team 객체를 함께 조회한다. (N+1 문제 발생)
 
             tx.commit();
         } catch (Exception e) {
