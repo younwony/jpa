@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -30,7 +31,8 @@ public class Member extends BaseEntity{ // 상속을 받는다. , 상속을 받�
     @OneToOne
     @JoinColumn(name = "locker_id")
     private Locker locker;
-    @ManyToOne
+//    @ManyToOne(fetch = FetchType.EAGER) // JPQL을 실행할 때, 연관된 엔티티를 함께 조회한다. N+1 문제가 발생할 수 있다.
+    @ManyToOne(fetch = FetchType.LAZY) // 지연로딩, 프록시 객체 조회, 실무에서는 가급적 지연로딩만을 사용한다.
     @JoinColumn(name = "team_id")
     private Team team;
     @OneToMany(mappedBy = "member")
