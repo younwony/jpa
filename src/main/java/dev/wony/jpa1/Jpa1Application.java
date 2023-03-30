@@ -1,14 +1,12 @@
 package dev.wony.jpa1;
 
-import dev.wony.jpa1.domain.Child;
+import dev.wony.jpa1.domain.Address;
 import dev.wony.jpa1.domain.Member;
-import dev.wony.jpa1.domain.Parent;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import java.util.List;
 
 public class Jpa1Application {
 
@@ -19,30 +17,21 @@ public class Jpa1Application {
         tx.begin();  // 트랜잭션 시작
 
         try {
+            Address address = new Address("city", "street", "10000");
 
-            Parent parent = new Parent();
-            parent.setName("parent1");
+            Member member1 = new Member();
+            member1.setUsername("member1");
+            member1.setHomeAddress(address);
+            em.persist(member1);
 
+            Address address2 = new Address(address.getCity(), address.getStreet(), address.getZipcode());
 
-            Child child1 = new Child();
-            child1.setName("child1");
-            parent.addChild(child1);
+            Member member2 = new Member();
+            member2.setUsername("member2");
+            member2.setHomeAddress(address2);
+            em.persist(member2);
 
-            Child child2 = new Child();
-            child2.setName("child2");
-            parent.addChild(child2);
-
-            em.persist(child1); // casecade = CascadeType.ALL, persist(parent)만 해도 child1, child2도 persist된다.
-            em.persist(child2); // casecade = CascadeType.ALL, persist(parent)만 해도 child1, child2도 persist된다.
-            em.persist(parent); // casecade = CascadeType.ALL, persist(parent)만 해도 child1, child2도 persist된다.
-
-            em.flush();
-            em.clear();
-
-            Parent findParent = em.find(Parent.class, parent.getId());
-//            em.remove(findParent); // casecade = CascadeType.ALL, remove(parent)만 해도 child1, child2도 remove된다.
-            List<Child> findParentChildren = findParent.getChildren();
-            findParentChildren.remove(0); // 고아 객체 제거: 부모와 연관관계가 끊어진 객체는 제거한다. (연관관계가 끊어진 객체는 부모가 관리하지 않는다.),
+            member1.getHomeAddress().setCity("newCity"); // member1 , member2의 city가 같은 객체를 참조하고 있기 때문에 같이 변경된다., 값 타입은 공유하면 안된다. (immutable) -> 복사해서 사용해야 한다. (ex. String)
 
             tx.commit();
         } catch (Exception e) {
