@@ -31,7 +31,8 @@ public class Jpa1Application {
             member2.setHomeAddress(address2);
             em.persist(member2);
 
-            member1.getHomeAddress().setCity("newCity"); // member1 , member2의 city가 같은 객체를 참조하고 있기 때문에 같이 변경된다., 값 타입은 공유하면 안된다. (immutable) -> 복사해서 사용해야 한다. (ex. String)
+            System.out.println(address.hashCode() == address2.hashCode());
+            System.out.println(address.equals(address2));
 
             tx.commit();
         } catch (Exception e) {
