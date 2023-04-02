@@ -18,7 +18,7 @@ public class Address {
     private String street;
     private String zipcode;
 
-    // 동등성 비교
+    // 동등성 비교, 값 타입은 식별자 개념이 없기 때문에 동등성 비교를 해야함, 식별자가 없는 엔티티는 동일성 비교를 해야함 (ex. Member)
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
