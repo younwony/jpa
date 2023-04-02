@@ -8,6 +8,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.List;
 
 public class Jpa1Application {
 
@@ -35,24 +39,52 @@ public class Jpa1Application {
             em.flush();
             em.clear();
 
-            Member member = em.find(Member.class, member1.getId());
-            System.out.println("member = " + member);
+            // 1. JPQL 사용
+            List<Member> selectMFromMemberM = em.createQuery("select m from Member m WHERE m.username like '%member%' ", Member.class)
+                    .getResultList();
 
-            // 값 타입 수정
-//            member.getHomeAddress().setCity("newCity"); // 값타입은 immutable 객체로 설계해야 한다. 따라서 값타입의 특정 필드 값을 변경하려면, setter를 사용하면 안된다. 대신 값타입 전체를 교체해야 한다.
-            Address newAddress = new Address("newCity", member.getHomeAddress().getStreet(), member.getHomeAddress().getZipcode()); // 값타입 생성 후 교체
-            member.setHomeAddress(newAddress);
+            // 2. JPQL Criteria 사용 - (실무에서 잘 사용하지 않음 - 비 권장) - 코드가 복잡하고, 유지보수가 어려움 - 실무에서는 QueryDSL을 사용
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Member> query = cb.createQuery(Member.class);
 
-            // 값 타입 컬렉션 수정,
-            member.getFavoriteFoods().remove("치킨"); // 값타입 컬렉션은 값타입을 추가, 삭제할 때, 값타입을 참조하는 엔티티를 통해서만 수정할 수 있다.
-            member.getFavoriteFoods().add("한식");
+            Root<Member> m = query.from(Member.class);
 
-            // 값 타입 컬렉션 수정2
-            // 값 타입 컬렉션 제약사항
-            // 값 타입 컬렉션에 변경 사항이 발생하면, 주인 엔티티와 관련된 모든 데이터를 삭제하고, 값 타입 컬렉션에 있는 현재 값을 모두 다시 저장한다.
-            member.getAddressHistory().remove(new AddressEntity("old1", "street", "10000")); // 값 타입을 수정, 삭제를 하기 위해서는 equals, hashCode를 재정의 해야 한다. (값타입은 식별자 개념이 없기 때문에) 기본적으로 equals or hashcode 로 찾는다.
-            member.getAddressHistory().add(new AddressEntity("newCity1", "street", "10000"));
+            CriteriaQuery<Member> cq = query.select(m)
+                    .where(cb.like(m.get("username"), "%member%"));
+            String username = "member1";
+            
+            // 동적 쿼리 사용
+            if (username != null) {
+                cq.where(cb.equal(m.get("username"), username));
+            }
 
+            List<Member> resultList = em.createQuery(cq).getResultList();
+
+            // 3. QueryDSL 사용 - 실무에서 가장 많이 사용 + 권장, ( jpa1 에서는 다루지 않음 )
+            // QueryDSL은 JPQL을 생성해주는 빌더 역할을 한다.
+            // 코드가 간결하고 유지보수가 쉬움
+            // 동적 쿼리 작성이 쉬움
+            // 타입 안정성이 보장, IDE 지원
+            // 컴파일 시점에 문법 오류를 찾을 수 있음
+            // 오타 등의 실수를 줄일 수 있음
+            // 런타임에 발생할 수 있는 오류를 컴파일 시점에 찾을 수 있음
+            // 단. Setting 하기가 어려움
+
+            // 4. 네이티브 SQL 사용
+            // SQL을 직접 사용하는 방법
+            // 데이터베이스에 의존적인 코드가 될 수 있음
+            // JPA 표준이 아니므로 하이버네이트만 지원
+            // JPQL을 사용하는 것을 권장
+            List<Member> nativeMembers = em.createNativeQuery("select MEMBER_ID, CITY, STREET, ZIPCODE, USERNAME from MEMBER", Member.class)
+                            .getResultList();
+
+            // 5. JDBC API 직접 사용
+            // JPA를 사용하지 않고 JDBC API를 직접 사용하는 방법
+            // JPA를 사용하지 않으므로 영속성 컨텍스트를 사용할 수 없음
+            // JPA를 사용하지 않으므로 트랜잭션을 지원하지 않음
+            // JPA를 사용하지 않으므로 데이터베이스 방언을 사용할 수 없음
+            // JPA를 사용하지 않으므로 데이터베이스 벤더에 종속적인 코드를 작성해야 함
+            // JPA를 사용하지 않으므로 JPA가 제공하는 기능을 사용할 수 없음
 
 
             tx.commit();
