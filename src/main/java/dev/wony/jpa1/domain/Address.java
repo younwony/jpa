@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.util.Objects;
 
@@ -14,9 +15,21 @@ import java.util.Objects;
 @AllArgsConstructor
 public class Address {
 
+    @Column(length = 10)
     private String city;
+    @Column(length = 20)
     private String street;
+    @Column(length = 5)
     private String zipcode;
+
+    // 공통 메서드 선언해서 사용
+    public String fullAddress() {
+        return getCity() + " " + getStreet() + " " + getZipcode();
+    }
+    
+    public boolean isValidate() {
+        return getCity() != null && getStreet() != null && getZipcode() != null;
+    }
 
     // 동등성 비교, 값 타입은 식별자 개념이 없기 때문에 동등성 비교를 해야함, 식별자가 없는 엔티티는 동일성 비교를 해야함 (ex. Member)
     @Override
