@@ -9,6 +9,8 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -39,6 +41,10 @@ public class Member extends BaseEntity{ // 상속을 받는다. , 상속을 받�
     @Column(name = "age")
     private int age;
 
+    @Column(name = "member_type")
+    @Enumerated(EnumType.STRING)
+    private MemberType memberType;
+
     // 값타입 Collections은 '영속석 전이(CASCADE) + 고아 객체 제거' 기능을 필수로 가진다. cascade = CascadeType.ALL, orphanRemoval = true
     // 값 타입 컬렉션은 @ElementCollection, @CollectionTable
     // 기본적으로 지연 로딩(LAZY) 전략을 사용한다.
@@ -67,11 +73,14 @@ public class Member extends BaseEntity{ // 상속을 받는다. , 상속을 받�
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "locker_id")
     private Locker locker;
+
     @ManyToOne(fetch = FetchType.LAZY) // 지연로딩, 프록시 객체 조회, 실무에서는 가급적 지연로딩만을 사용한다.
     @JoinColumn(name = "team_id")
     private Team team;
+
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>(); // 초기화를 해주는 것이 좋다. (null이 아닌 빈 컬렉션을 사용하자) - NPE를 방지할 수 있다. 관례상 초기화를 해주는 것이 좋다.
+
     @OneToMany(mappedBy = "member")
     private List<MemberProduct> memberProducts = new ArrayList<>();
 

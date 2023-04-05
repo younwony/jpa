@@ -1,7 +1,8 @@
 package dev.wony.jpa1;
 
+import dev.wony.jpa1.domain.Item;
 import dev.wony.jpa1.domain.Member;
-import dev.wony.jpa1.domain.Order;
+import dev.wony.jpa1.domain.MemberType;
 import dev.wony.jpa1.domain.Team;
 
 import javax.persistence.EntityManager;
@@ -28,90 +29,36 @@ public class Jpa1Application {
                 Member member = new Member();
                 member.setUsername("member" + i);
                 member.setAge(i);
+                member.setMemberType(MemberType.ADMIN);
                 member.changeTeam(team);
 
                 em.persist(member);
             }
 
-            // Sub query
-            // 한계 : 서브쿼리는 JPQL에서 FROM 절에서 사용할 수 없다. -> 조인으로 해결
-            // JPA는 WHERE, HAVING 절에서만 서브쿼리 사용 가능
+            // Enum Type 조회
+            String jpql = "select m from Member m join fetch m.team " +
+                    "where m.memberType = dev.wony.jpa1.domain.MemberType.ADMIN"; // Enum 타입은 패키지명을 포함해야 한다.
 
+            em.createQuery(jpql, Member.class)
+                    .getResultList()
+                    .forEach(Jpa1Application::printMemberAndTeam);
 
-            String qlString = "" +
-                    "   select m " +
-                    "   from Member m " +
-                    "   where m.age > (select avg(m2.age) from Member m2) " +
-                    "   order by m.age desc " +
-                    " ";
-            em.createQuery(qlString, Member.class)
+            String jpql_1 = "select m from Member m join fetch m.team " +
+                    "where m.memberType = :memberType";
+
+            em.createQuery(jpql_1, Member.class)
+                    .setParameter("memberType", MemberType.ADMIN)
+                    .getResultList()
+                    .forEach(Jpa1Application::printMemberAndTeam);
+
+            // Item Book Enum Type 상속 조회
+            String jpql_2 = "select i from Item i where type(i) in (Book, Movie)";
+
+            em.createQuery(jpql_2, Item.class)
                     .getResultList()
                     .forEach(System.out::println);
 
-            // Sub query exists, 조건을 만족하는 데이터가 있으면 참, team0에 소속된 회원들
-            String qlString2 = "" +
-                    "   select m " +
-                    "   from Member m " +
-                    "   where exists (select t from m.team t where t.name = 'team0') " +
-                    "   order by m.age desc " +
-                    " ";
-            em.createQuery(qlString2, Member.class)
-                    .getResultList()
-                    .forEach(System.out::println);
 
-            // Sub query ALL, 모두 만족하면 참, 전체 상품 각각의 재고보다 주문량이 많은 주문들
-            String qlString3 = "" +
-                    "   select o " +
-                    "   from Order o " +
-                    "   where o.orderAmount > ALL (select p.stockAmount from Product p) " +
-                    " ";
-
-            em.createQuery(qlString3, Order.class)
-                    .getResultList()
-                    .forEach(System.out::println);
-
-            // Sub query ANY, SOME, 조건을 하나라도 만족하면 참, 전체 상품 중 재고가 10개 이상인 상품이 하나라도 있는 주문들 -> min
-            String qlString4 = "" +
-                    "   select o " +
-                    "   from Order o " +
-                    "   where o.orderAmount > ANY (select p.stockAmount from Product p where p.stockAmount >= 10) " +
-                    " ";
-
-            /**             *
-             * "any"와 "min"은 특정한 경우에 비슷한 결과를 얻기 위해 사용될 수 있지만 장단점이 다릅니다.
-             *
-             *
-             * "any" 사용의 장점:
-             *
-             *
-             * "Any"는 더 유연하며 값을 최소값이나 최대값뿐만 아니라 컬렉션의 모든 값과 비교하는 데 사용할 수 있습니다.
-             * "Any"는 최소값을 계산할 필요가 없기 때문에 일반적으로 "min"보다 빠릅니다.
-             *
-             * "any" 사용의 단점:
-             *
-             *
-             * "Any"는 컬렉션의 요소가 조건을 충족하는 경우 true를 반환할 수 있으며 이는 의도한 바가 아닐 수 있습니다.
-             * 컬렉션에 null 값이 포함된 경우 "Any"는 예기치 않은 결과를 초래할 수 있습니다. -> is not null 사용하여 필터링하면 된다.
-             *
-             * "최소" 사용의 장점:
-             *
-             *
-             * "Min"은 보다 구체적이며 컬렉션의 정확한 최소값을 반환하며 경우에 따라 유용할 수 있습니다.
-             * "최소"는 바람직할 수 있는 null 값을 필터링하는 데 사용할 수 있습니다.
-             *
-             * "최소" 사용의 단점:
-             *
-             *
-             * "Min"은 컬렉션의 최소값을 계산해야 하므로 "any"보다 느립니다.
-             * "Min"은 값을 컬렉션의 최소값과 비교하는 데만 사용할 수 있으며 일부 또는 모든 값을 비교할 수는 없습니다.
-             *
-             * 요약하면, 값을 컬렉션의 일부 또는 모든 값과 비교하려면 "any"를 사용해야 합니다. 컬렉션의 최소값을 찾거나 null 값을 필터링하려면 "min"을 사용해야 합니다.
-             *
-             */
-
-            em.createQuery(qlString4, Order.class)
-                    .getResultList()
-                    .forEach(System.out::println);
 
             tx.commit();
         } catch (Exception e) {
