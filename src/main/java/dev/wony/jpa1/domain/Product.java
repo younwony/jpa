@@ -23,6 +23,8 @@ public class Product extends BaseEntity{
 
     private int price;
 
+    private int stockAmount;
+
     @OneToMany(mappedBy = "product")
     private List<MemberProduct> memberProducts = new ArrayList<>();
 }

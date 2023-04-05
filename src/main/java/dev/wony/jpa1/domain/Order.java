@@ -35,6 +35,9 @@ public class Order extends BaseEntity{
     @Column(name = "order_price")
     private int orderPrice;
 
+    @Column(name = "order_amount")
+    private int orderAmount;
+
     @Embedded
     private Address address;
 
