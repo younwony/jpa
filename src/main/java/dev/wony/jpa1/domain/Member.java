@@ -36,6 +36,9 @@ public class Member extends BaseEntity{ // 상속을 받는다. , 상속을 받�
     @Embedded
     private Address homeAddress;
 
+    @Column(name = "age")
+    private int age;
+
     // 값타입 Collections은 '영속석 전이(CASCADE) + 고아 객체 제거' 기능을 필수로 가진다. cascade = CascadeType.ALL, orphanRemoval = true
     // 값 타입 컬렉션은 @ElementCollection, @CollectionTable
     // 기본적으로 지연 로딩(LAZY) 전략을 사용한다.

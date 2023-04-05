@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -30,15 +31,30 @@ public class Order extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "order_id", nullable = false)
     private Long id;
+
+    @Column(name = "order_price")
+    private int orderPrice;
+
+    @Embedded
+    private Address address;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
+
     private LocalDateTime orderDate;
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
