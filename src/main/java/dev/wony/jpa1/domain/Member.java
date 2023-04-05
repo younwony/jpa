@@ -75,4 +75,8 @@ public class Member extends BaseEntity{ // 상속을 받는다. , 상속을 받�
     @OneToMany(mappedBy = "member")
     private List<MemberProduct> memberProducts = new ArrayList<>();
 
+    public void changeTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this);
+    }
 }
