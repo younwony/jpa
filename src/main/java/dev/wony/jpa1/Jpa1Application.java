@@ -1,6 +1,5 @@
 package dev.wony.jpa1;
 
-import dev.wony.jpa1.domain.Item;
 import dev.wony.jpa1.domain.Member;
 import dev.wony.jpa1.domain.MemberType;
 import dev.wony.jpa1.domain.Team;
@@ -28,6 +27,9 @@ public class Jpa1Application {
 
                 Member member = new Member();
                 member.setUsername("member" + i);
+                if (i == 5) {
+                    member.setUsername(null);
+                }
                 member.setAge(i);
                 member.setMemberType(MemberType.ADMIN);
                 member.changeTeam(team);
@@ -35,30 +37,52 @@ public class Jpa1Application {
                 em.persist(member);
             }
 
-            // Enum Type 조회
-            String jpql = "select m from Member m join fetch m.team " +
-                    "where m.memberType = dev.wony.jpa1.domain.MemberType.ADMIN"; // Enum 타입은 패키지명을 포함해야 한다.
+            // 기본 Case 식
+            String query = "" +
+                    "select " +
+                    "   case when m.age <= 10 then '학생요금' " +
+                    "        when m.age >= 60 then '경로요금' " +
+                    "        else '일반요금' " +
+                    "   end " +
+                    "from Member m";
 
-            em.createQuery(jpql, Member.class)
-                    .getResultList()
-                    .forEach(Jpa1Application::printMemberAndTeam);
-
-            String jpql_1 = "select m from Member m join fetch m.team " +
-                    "where m.memberType = :memberType";
-
-            em.createQuery(jpql_1, Member.class)
-                    .setParameter("memberType", MemberType.ADMIN)
-                    .getResultList()
-                    .forEach(Jpa1Application::printMemberAndTeam);
-
-            // Item Book Enum Type 상속 조회
-            String jpql_2 = "select i from Item i where type(i) in (Book, Movie)";
-
-            em.createQuery(jpql_2, Item.class)
+            em.createQuery(query, String.class)
                     .getResultList()
                     .forEach(System.out::println);
 
+            // 단순 Case 식
+            query = "" +
+                    "select " +
+                    "   case m.memberType " +
+                    "       when 'ADMIN' then '관리자' " +
+                    "       when 'USER' then '사용자' " +
+                    "       else '기타' " +
+                    "   end " +
+                    "from Member m";
 
+            em.createQuery(query, String.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+
+            // Coalesce 식, 하나씩 조회해서 null이 아닌 값을 반환, ifnull과 같음
+            query = "" +
+                    "select " +
+                    "   coalesce(m.username, '이름 없는 회원') " +
+                    "from Member m";
+
+            em.createQuery(query, String.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+
+            // Nullif 식, 두 값이 같으면 null을 반환 아니면 첫번째 값 반환 (두 값이 같으면 null을 반환)
+            query = "" +
+                    "select " +
+                    "   nullif(m.username, '관리자') " +
+                    "from Member m";
+
+            em.createQuery(query, String.class)
+                    .getResultList()
+                    .forEach(System.out::println);
 
             tx.commit();
         } catch (Exception e) {
