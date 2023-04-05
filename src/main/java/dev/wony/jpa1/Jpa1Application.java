@@ -1,6 +1,7 @@
 package dev.wony.jpa1;
 
 import dev.wony.jpa1.domain.Member;
+import dev.wony.jpa1.domain.MemberDTO;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -23,16 +24,33 @@ public class Jpa1Application {
             member.setUsername("member1");
             member.setAge(10);
             em.persist(member);
+            
+            // 프로젝션
+            String sql1 = "select m from Member m"; // 엔티티 프로젝션, 엔티티를 조회하는 것과 같다., 영속성 컨텍스트에서 관리
+            String sql2 = "select m.team from Member m"; // 엔티티 프로젝션, 엔티티를 조회하는 것과 같다., 영속성 컨텍스트에서 관리
+            String sql2_1 = "select t from Member m join m.team t"; // 2번과 같은 쿼리 (조인), 좀더 명시적으로 표현 하는게 유지보수성에 좋다.
+            String sql3 = "select o.address from Order o"; // 임베디드 프로젝션, 임베디드 타입을 조회하는 것과 같다.
+            String sql4 = "select m.username, m.age from Member m"; // 스칼라 프로젝션
+            String sql4_1 = "select new dev.wony.jpa1.domain.MemberDTO(m.username, m.age) from Member m"; // 스칼라 프로젝션 + DTO 조회 (DTO를 생성하는 것과 같다.) , 패키지명 포함
 
-            TypedQuery<Member> selectMFromMemberM = em.createQuery("select m from Member m WHERE m.username = :username", Member.class) // TypedQuery는 반환 타입이 명확할 때 사용
-                    .setParameter("username", "member1"); // 파라미터 바인딩 , 이름 기준 바인딩 :username, 위치 기준 바인딩 ?1 (1부터 시작) , 이름과 위치 모두 사용 가능, 이름이 우선순위가 높음, 이름이 없으면 위치 기준 바인딩, 위치 기준 사용 X 하도록
+            TypedQuery<Member> selectMFromMemberM = em.createQuery("select m from Member m", Member.class); // TypedQuery는 반환 타입이 명확할 때 사용
+            List<Member> resultList = selectMFromMemberM.getResultList();
 
-            Member singleResult = selectMFromMemberM.getSingleResult(); // 결과가 하나일 때, 결과가 없으면 NoResultException 발생, 결과가 둘 이상이면 NonUniqueResultException 발생, 결과가 없으면 null 반환
-            System.out.println("singleResult = " + singleResult.getUsername());
-            List<Member> resultList = selectMFromMemberM.getResultList(); // 결과가 여러 개일 때, 결과가 없으면 빈 리스트 반환
-            Query query = em.createQuery("select m.username, m.age from Member m"); // Query는 반환 타입이 명확하지 않을 때 사용
-
-
+            // 스칼라 타입
+            Query query = em.createQuery(sql4);
+            TypedQuery<Object[]> query1 = em.createQuery(sql4, Object[].class); // 스칼라 타입은 Object[]로 조회 한다. (타입이 명확하지 않기 때문에)
+            List<Object[]> resultList1 = query.getResultList(); // 스칼라 타입은 Object[]로 조회 한다. (타입이 명확하지 않기 때문에)
+            for (Object[] objects : resultList1) {
+                System.out.println("objects = " + objects[0]);
+                System.out.println("objects = " + objects[1]);
+            }
+            // 스칼라 타입을 DTO로 조회
+            TypedQuery<MemberDTO> query2 = em.createQuery(sql4_1, MemberDTO.class);
+            List<MemberDTO> resultList2 = query2.getResultList();
+            for (MemberDTO memberDTO : resultList2) {
+                System.out.println("memberDTO = " + memberDTO.getUsername());
+                System.out.println("memberDTO = " + memberDTO.getAge());
+            }
 
 
             tx.commit();
