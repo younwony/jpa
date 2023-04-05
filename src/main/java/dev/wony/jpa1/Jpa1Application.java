@@ -37,52 +37,94 @@ public class Jpa1Application {
                 em.persist(member);
             }
 
-            // 기본 Case 식
-            String query = "" +
-                    "select " +
-                    "   case when m.age <= 10 then '학생요금' " +
-                    "        when m.age >= 60 then '경로요금' " +
-                    "        else '일반요금' " +
-                    "   end " +
-                    "from Member m";
+            // JPQL 기본 함수
 
+            // CONCAT
+            String query = "select concat('a', 'b') from Member m"; // ab, 'a' || 'b' 도 가능
             em.createQuery(query, String.class)
                     .getResultList()
                     .forEach(System.out::println);
 
-            // 단순 Case 식
-            query = "" +
-                    "select " +
-                    "   case m.memberType " +
-                    "       when 'ADMIN' then '관리자' " +
-                    "       when 'USER' then '사용자' " +
-                    "       else '기타' " +
-                    "   end " +
-                    "from Member m";
-
+            // SUBSTRING
+            query = "select substring(m.username, 2, 3) from Member m"; // 2번째 인덱스부터 3개의 문자열
             em.createQuery(query, String.class)
                     .getResultList()
                     .forEach(System.out::println);
 
-            // Coalesce 식, 하나씩 조회해서 null이 아닌 값을 반환, ifnull과 같음
-            query = "" +
-                    "select " +
-                    "   coalesce(m.username, '이름 없는 회원') " +
-                    "from Member m";
-
+            // TRIM
+            /**
+             * 이러한 함수의 주요 차이점은 공백 문자가 제거되는 문자열 부분입니다.
+             * 'TRIM'은 문자열의 시작과 끝 모두에서 공백 문자를 제거하고,
+             * 'LTRIM'은 문자열의 시작 부분에서만 공백 문자를 제거하며,
+             * 'RTRIM'은 문자열의 끝 부분에서만 공백 문자를 제거합니다.
+             *
+             * 또한 TRIM을 사용하면 문자열에서 제거할 문자를 지정할 수 있는 반면 LTRIM 및 RTRIM은 공백 문자만 제거합니다.
+             */
+            query = "select trim(m.username) from Member m"; // 공백 제거, ltrim, rtrim 도 가능
             em.createQuery(query, String.class)
                     .getResultList()
                     .forEach(System.out::println);
 
-            // Nullif 식, 두 값이 같으면 null을 반환 아니면 첫번째 값 반환 (두 값이 같으면 null을 반환)
-            query = "" +
-                    "select " +
-                    "   nullif(m.username, '관리자') " +
-                    "from Member m";
-
+            // LOWER, UPPER
+            query = "select lower(m.username) from Member m"; // 소문자, 대문자
             em.createQuery(query, String.class)
                     .getResultList()
                     .forEach(System.out::println);
+
+            // LENGTH
+            query = "select length(m.username) from Member m"; // 문자열 길이
+            em.createQuery(query, Integer.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+
+            // LOCATE
+            query = "select locate('de', m.username) from Member m"; // 문자열 위치
+            em.createQuery(query, Integer.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+
+            // ABS, SQRT, MOD, SIZE, INDEX
+            query = "select abs(m.age) from Member m"; // 절대값
+            em.createQuery(query, Integer.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+
+            query = "select sqrt(m.age) from Member m"; // 제곱근
+            em.createQuery(query, Double.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+
+            query = "select mod(m.age, 2) from Member m"; // 나머지
+            em.createQuery(query, Integer.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+
+            // SIZE, INDEX
+            // SIZE: 컬렉션의 크기, INDEX: 컬렉션의 인덱스
+            query = "select size(t.members) from Team t"; // 컬렉션의 크기
+            em.createQuery(query, Integer.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+            
+            // 왠만하면 Order Column을 사용하지 않는 것이 좋다. 사용 미권유
+//            query = "select index(t.members) from Team t"; // 컬렉션의 인덱스, 컬렉션의 인덱스는 0부터 시작, Order Column이 있으면 Order Column의 값이 인덱스가 된다.
+//            em.createQuery(query, Integer.class)
+//                    .getResultList()
+//                    .forEach(System.out::println);
+
+            // 사용자 정의 함수
+            // Group Concat
+//            query = "select function('group_concat', m.username) from Member m"; // 문자열을 하나로 합침
+            query = "select group_concat(m.username) from Member m"; // 문자열을 하나로 합침
+            em.createQuery(query, String.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+
+
+
+
+
+
 
             tx.commit();
         } catch (Exception e) {

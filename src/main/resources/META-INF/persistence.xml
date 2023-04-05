@@ -10,7 +10,8 @@
             <property name="javax.persistence.jdbc.user" value="sa"/>
             <property name="javax.persistence.jdbc.password" value=""/>
             <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/test"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.dialect" value="dev.wony.jpa1.dialect.MyH2Dialect"/>
+<!--            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>-->
 
             <property name="hibernate.show_sql" value="true"/> <!-- show sql in console -->
             <property name="hibernate.format_sql" value="true"/> <!-- format sql in console -->
