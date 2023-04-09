@@ -37,94 +37,47 @@ public class Jpa1Application {
                 em.persist(member);
             }
 
-            // JPQL 기본 함수
+            String query = "" +
+                    "select m.username " + // 상태 필드, 단순 값 , 경로탐색의 끝 (탐색 불가)
+                    "   ,m.team.name " + // 단일 값 연간 경로 (탐색가능, 묵시적 내부 조인 발생) -> 묵시적 내부 조인이 발생하지 않도록 한다. 튜닝하기 어렵다.
+                    " from Member m " +
+                    " join m.team t " + // 단일 값 연관 필드 (탐색가능, 묵시적 내부 조인 발생)
+                    " join m.orders o " + // 컬렉션 값 연관 필드 (탐색 불가능, 묵시적 내부 조인 발생)
+                    "where t.name = 'member0'"
+                    ;
 
-            // CONCAT
-            String query = "select concat('a', 'b') from Member m"; // ab, 'a' || 'b' 도 가능
-            em.createQuery(query, String.class)
+            em.createQuery(query, Object[].class)
                     .getResultList()
                     .forEach(System.out::println);
 
-            // SUBSTRING
-            query = "select substring(m.username, 2, 3) from Member m"; // 2번째 인덱스부터 3개의 문자열
-            em.createQuery(query, String.class)
+            query = "select t.members.size from Team t"; // size만 탐색 가능
+            em.createQuery(query, Object.class)
+                                .getResultList()
+                                .forEach(System.out::println);
+
+            query = "select t.members from Team t";
+            em.createQuery(query, Object.class)
                     .getResultList()
                     .forEach(System.out::println);
 
-            // TRIM
+            // 명시적 조인을 통해 별칭을 얻으면 별칭을 통해 탐색 가능
+            query = "select t.name from Member m join m.team t";
+            em.createQuery(query, Object.class)
+                    .getResultList()
+                    .forEach(System.out::println);
+
             /**
-             * 이러한 함수의 주요 차이점은 공백 문자가 제거되는 문자열 부분입니다.
-             * 'TRIM'은 문자열의 시작과 끝 모두에서 공백 문자를 제거하고,
-             * 'LTRIM'은 문자열의 시작 부분에서만 공백 문자를 제거하며,
-             * 'RTRIM'은 문자열의 끝 부분에서만 공백 문자를 제거합니다.
+             *  실무 조언
              *
-             * 또한 TRIM을 사용하면 문자열에서 제거할 문자를 지정할 수 있는 반면 LTRIM 및 RTRIM은 공백 문자만 제거합니다.
+             *  1. 가급적 묵시적 조인보다는 명시적 조인을 사용하자. (명시적 조인 반드시 사용)
+             *  2. 조인은 SQL 튜닝에 중요 포인트 인데 묵시적 조인을 사용하면 튜닝하기 어렵다.
+             *  3. 묵시적 조인은 조인 상황을 한눈에 파악하기 어렵다.
              */
-            query = "select trim(m.username) from Member m"; // 공백 제거, ltrim, rtrim 도 가능
-            em.createQuery(query, String.class)
+
+            query = "select o.member.team from Order o";
+            em.createQuery(query, Object.class)
                     .getResultList()
                     .forEach(System.out::println);
-
-            // LOWER, UPPER
-            query = "select lower(m.username) from Member m"; // 소문자, 대문자
-            em.createQuery(query, String.class)
-                    .getResultList()
-                    .forEach(System.out::println);
-
-            // LENGTH
-            query = "select length(m.username) from Member m"; // 문자열 길이
-            em.createQuery(query, Integer.class)
-                    .getResultList()
-                    .forEach(System.out::println);
-
-            // LOCATE
-            query = "select locate('de', m.username) from Member m"; // 문자열 위치
-            em.createQuery(query, Integer.class)
-                    .getResultList()
-                    .forEach(System.out::println);
-
-            // ABS, SQRT, MOD, SIZE, INDEX
-            query = "select abs(m.age) from Member m"; // 절대값
-            em.createQuery(query, Integer.class)
-                    .getResultList()
-                    .forEach(System.out::println);
-
-            query = "select sqrt(m.age) from Member m"; // 제곱근
-            em.createQuery(query, Double.class)
-                    .getResultList()
-                    .forEach(System.out::println);
-
-            query = "select mod(m.age, 2) from Member m"; // 나머지
-            em.createQuery(query, Integer.class)
-                    .getResultList()
-                    .forEach(System.out::println);
-
-            // SIZE, INDEX
-            // SIZE: 컬렉션의 크기, INDEX: 컬렉션의 인덱스
-            query = "select size(t.members) from Team t"; // 컬렉션의 크기
-            em.createQuery(query, Integer.class)
-                    .getResultList()
-                    .forEach(System.out::println);
-            
-            // 왠만하면 Order Column을 사용하지 않는 것이 좋다. 사용 미권유
-//            query = "select index(t.members) from Team t"; // 컬렉션의 인덱스, 컬렉션의 인덱스는 0부터 시작, Order Column이 있으면 Order Column의 값이 인덱스가 된다.
-//            em.createQuery(query, Integer.class)
-//                    .getResultList()
-//                    .forEach(System.out::println);
-
-            // 사용자 정의 함수
-            // Group Concat
-//            query = "select function('group_concat', m.username) from Member m"; // 문자열을 하나로 합침
-            query = "select group_concat(m.username) from Member m"; // 문자열을 하나로 합침
-            em.createQuery(query, String.class)
-                    .getResultList()
-                    .forEach(System.out::println);
-
-
-
-
-
-
 
             tx.commit();
         } catch (Exception e) {
