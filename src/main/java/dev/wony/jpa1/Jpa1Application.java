@@ -1,13 +1,13 @@
 package dev.wony.jpa1;
 
 import dev.wony.jpa1.domain.Member;
-import dev.wony.jpa1.domain.MemberType;
 import dev.wony.jpa1.domain.Team;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.util.List;
 
 public class Jpa1Application {
 
@@ -19,65 +19,79 @@ public class Jpa1Application {
 
         try {
 
-            for (int i = 0; i < 10; i++) {
                 Team team = new Team();
-                team.setName("team" + i);
+                team.setName("teamA");
 
                 em.persist(team);
+                Team team2 = new Team();
+                team2.setName("teamB");
+
+                em.persist(team2);
 
                 Member member = new Member();
-                member.setUsername("member" + i);
-                if (i == 5) {
-                    member.setUsername(null);
-                }
-                member.setAge(i);
-                member.setMemberType(MemberType.ADMIN);
+                member.setUsername("member1");
                 member.changeTeam(team);
 
                 em.persist(member);
-            }
+                Member member1 = new Member();
+                member1.setUsername("member2");
+                member1.changeTeam(team);
 
-            String query = "" +
-                    "select m.username " + // 상태 필드, 단순 값 , 경로탐색의 끝 (탐색 불가)
-                    "   ,m.team.name " + // 단일 값 연간 경로 (탐색가능, 묵시적 내부 조인 발생) -> 묵시적 내부 조인이 발생하지 않도록 한다. 튜닝하기 어렵다.
-                    " from Member m " +
-                    " join m.team t " + // 단일 값 연관 필드 (탐색가능, 묵시적 내부 조인 발생)
-                    " join m.orders o " + // 컬렉션 값 연관 필드 (탐색 불가능, 묵시적 내부 조인 발생)
-                    "where t.name = 'member0'"
-                    ;
+                em.persist(member1);
 
-            em.createQuery(query, Object[].class)
-                    .getResultList()
-                    .forEach(System.out::println);
+                Member member2 = new Member();
+                member2.setUsername("member3");
+                member2.changeTeam(team2);
 
-            query = "select t.members.size from Team t"; // size만 탐색 가능
-            em.createQuery(query, Object.class)
-                                .getResultList()
-                                .forEach(System.out::println);
+                em.persist(member2);
 
-            query = "select t.members from Team t";
-            em.createQuery(query, Object.class)
-                    .getResultList()
-                    .forEach(System.out::println);
+                Member member3 = new Member();
+                member3.setUsername("member4");
+                member3.changeTeam(team2);
 
-            // 명시적 조인을 통해 별칭을 얻으면 별칭을 통해 탐색 가능
-            query = "select t.name from Member m join m.team t";
-            em.createQuery(query, Object.class)
-                    .getResultList()
-                    .forEach(System.out::println);
+                em.persist(member3);
+            // Lazy Loading 보다 Fetch Join 이 우선
+            em.flush();
+            em.clear();
 
-            /**
-             *  실무 조언
-             *
-             *  1. 가급적 묵시적 조인보다는 명시적 조인을 사용하자. (명시적 조인 반드시 사용)
-             *  2. 조인은 SQL 튜닝에 중요 포인트 인데 묵시적 조인을 사용하면 튜닝하기 어렵다.
-             *  3. 묵시적 조인은 조인 상황을 한눈에 파악하기 어렵다.
-             */
+            // N : 1 관계
+            String query = "select m from Member m join fetch m.team";
+            List<Member> resultList1 = em.createQuery(query, Member.class)
+                    .getResultList();
+            resultList1
+                    .forEach(Jpa1Application::printMemberAndTeam);
 
-            query = "select o.member.team from Order o";
-            em.createQuery(query, Object.class)
-                    .getResultList()
-                    .forEach(System.out::println);
+
+            // 1 : N 관계, 데이터가 더 많아짐
+            String query2 = "select t from Team t join fetch t.members";
+            List<Team> resultList = em.createQuery(query2, Team.class)
+                    .getResultList();
+            resultList
+                    .forEach(team1 -> {
+                        System.out.println("team1 = " + team1);
+                        team1.getMembers().forEach(Jpa1Application::printMember);
+                    });
+
+            // 1 : N 관계, 데이터가 더 많아짐, DISTINCT 추가, 중복 제거(SQL 만) + (JPA 에서는 엔티티 중복 제거 도 포함, 따라서 실제 SQL 에서 Query 하는 결과 값가 다르다.)
+            String query3 = "select distinct t from Team t join fetch t.members";
+            List<Team> resultList3 = em.createQuery(query3, Team.class)
+                    .getResultList();
+            resultList3
+                    .forEach(team1 -> {
+                        System.out.println("team1 = " + team1);
+                        team1.getMembers().forEach(Jpa1Application::printMember);
+                    });
+
+            // 일반 조인 -> Member 만 조회 (Team 은 조회 X) , 일반 조인은 연관된 엔티티를 함께 조회할 수 없다.
+            String query4 = "select m from Member m join m.team t ";
+            List<Member> resultList4 = em.createQuery(query4, Member.class)
+                    .getResultList();
+
+            // Fetch Join
+            String query5 = "select m from Member m join fetch m.team";
+            List<Member> resultList5 = em.createQuery(query5, Member.class)
+                    .getResultList();
+
 
             tx.commit();
         } catch (Exception e) {
