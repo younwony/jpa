@@ -1,8 +1,6 @@
 package dev.wony.jpa1;
 
-import dev.wony.jpa1.domain.Book;
 import dev.wony.jpa1.domain.Member;
-import dev.wony.jpa1.domain.Movie;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -19,30 +17,15 @@ public class Jpa1Application {
 
         try {
 
-            Book book = new Book();
-            book.setName("JPA");
-            book.setAuthor("김영한");
+            Member member = new Member();
+            member.setUsername("member1");
+            member.setAge(10);
+            em.persist(member);
 
-            em.persist(book);
-
-            Movie movie = new Movie();
-            movie.setName("JPA1");
-            movie.setDirector("김영한1");
-
-            em.persist(movie);
-
-            // Entity
-            String qlString = "select count(m) from Member m"; // Entity 직접 사용, count(m) = count(m.id) 로 entity 로 사용해도 id 로 사용 된다.
-            String qlString2 = "select count(m.id) from Member m"; // Entity ID 사용
-            Long count = em.createQuery(qlString, Long.class).getSingleResult();
-
-            // Entity 를 파라미터로 넘겨도  위와 같이 기본키를 사용하는걸로 동일하다 member = member.id
-            String qlString3 = "select m from Member m where m = :member"; // Entity 직접 사용
-            String qlString4 = "select m from Member m where m.id = :memberId"; // Entity ID 사용
-
-            // Entity 외래키 사용해도 위와 동일 하다.
-            String qlString5 = "select m from Member m where m.team = :team"; // Entity 직접 사용
-            String qlString6 = "select m from Member m where m.team.id = :teamId"; // Entity ID 사용
+            em.createNamedQuery("Member.findByUsername", Member.class)
+                    .setParameter("username", "member1")
+                    .getResultList()
+                    .forEach(System.out::println);
 
             // Lazy Loading 보다 Fetch Join 이 우선
             em.flush();

@@ -17,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import java.util.ArrayList;
@@ -27,6 +28,24 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+/**
+ * 미리 정의해둔 JPQL 을 사용할 수 있다.
+ * 정적 쿼리이다.
+ * ** 애플리케이션 로딩 시점에 초기화 된다.
+ * ** 애플리케이션 로딩 시점에 문법 오류를 발견할 수 있다.
+ * NamedQuery 를 사용하면 JPQL 을 직접 작성할 수 있다.
+ * @NamedQuery 는 엔티티에 정의하고, @NamedNativeQuery 는 테이블에 정의한다.
+ * @NamedQuery 는 JPQL 을 사용하고, @NamedNativeQuery 는 SQL 을 사용한다.
+ * @NamedQuery 는 애플리케이션 로딩 시점에 초기화 되고, @NamedNativeQuery 는 애플리케이션 로딩 시점에 초기화 되지 않는다.
+ *
+ * XML 매핑 파일을 사용하면 NamedQuery 를 사용할 수 있다. XML이 우선권을 가진다.
+ *
+ * JPA Data 에서 @Query 를 사용하면 NamedQuery 를 사용할 수 있다. @Query 가 우선권을 가진다. (XML > @Query > @NamedQuery) , @Query 는 메소드에 정의한다. , 이름없는 NamedQuery
+ */
+@NamedQuery(
+        name = "Member.findByUsername",
+        query = "select m from Member m where m.username = :username"
+)
 public class Member extends BaseEntity{ // 상속을 받는다. , 상속을 받으면 부모의 필드도 컬럼으로 인식한다. extends 는 @Entity 나 @MappedSuperclass 만 가능하다.
     @Id
     @Column(name = "member_id")
