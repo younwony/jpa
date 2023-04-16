@@ -54,44 +54,47 @@ public class Jpa1Application {
             em.flush();
             em.clear();
 
-            // N : 1 관계
-            String query = "select m from Member m join fetch m.team";
-            List<Member> resultList1 = em.createQuery(query, Member.class)
-                    .getResultList();
-            resultList1
-                    .forEach(Jpa1Application::printMemberAndTeam);
+            /**
+             * 1. Fetch Join 대상에는 별칭을 주지 않는게 좋다.
+             * fetch join 대상 entity 를 조회 후 조작 했을 때 문제가 발생할 수 있다.
+             * fetch join 전부를 대상으로 처리를 기대했지만 fetch join 대상 entity 를 조작하면 fetch join 대상 entity 를 제외한 나머지 entity 는 영속성 컨텍스트에 존재하지 않기 때문에 문제가 발생할 수 있다.
+             *
+             * 2. 둘 이상의 컬렉션은 fetch join 할 수 없다.
+             *
+             * 3. 컬렉션을 fetch join 하면 페이징 API를 사용할 수 없다.
+             * 1 : 1, N : 1 같은 단일 값 관계에서는 페이징 API를 사용할 수 있다.
+             * 페이징  API를 사용하면 메모리에서 페이징을 하기 때문에 DB 에서 페이징을 하는 것보다 성능이 떨어진다.
+             * 그래서 페이징을 하려면 DB 에서 페이징을 해야 한다.
+             *
+             * 4. 엔티티에 직접 적용하는 글로벌 로딩 전략보다 우선시함.
+             * @OneToMany(fetch = FetchType.LAZY) 로 설정했지만 fetch join 을 사용하면 글로벌 로딩 전략을 무시하고 fetch join 을 사용한다.
+             * 
+             * 5. 최적화가 필요한곳은 대부분 fetch join 으로 해결할 수 있다.
+             * 
+             * 6. 페치 조인은 객체 그래프를 유지할 때 사용하면 효과적
+             *
+             * ** 7. 여러 테이블을 조인해서 엔티티가 가진 모양이 아닌 전혀 다른 결과를 내야 하는 경우에는 페치 조인 대신 일반 조인을 사용하고,
+             * 필요한 데이터만 조회해서 DTO로 반환하는 것이 효과적
+             */
 
+/*            String query = "select t from Team t join fetch t.members m where m.username = :username";
+            Team findTeam = em.createQuery(query, Team.class)
+                    .setParameter("username", "member1")
+                    .getSingleResult();*/
 
-            // 1 : N 관계, 데이터가 더 많아짐
-            String query2 = "select t from Team t join fetch t.members";
-            List<Team> resultList = em.createQuery(query2, Team.class)
-                    .getResultList();
-            resultList
-                    .forEach(team1 -> {
-                        System.out.println("team1 = " + team1);
-                        team1.getMembers().forEach(Jpa1Application::printMember);
-                    });
-
-            // 1 : N 관계, 데이터가 더 많아짐, DISTINCT 추가, 중복 제거(SQL 만) + (JPA 에서는 엔티티 중복 제거 도 포함, 따라서 실제 SQL 에서 Query 하는 결과 값가 다르다.)
-            String query3 = "select distinct t from Team t join fetch t.members";
-            List<Team> resultList3 = em.createQuery(query3, Team.class)
-                    .getResultList();
-            resultList3
-                    .forEach(team1 -> {
-                        System.out.println("team1 = " + team1);
-                        team1.getMembers().forEach(Jpa1Application::printMember);
-                    });
-
-            // 일반 조인 -> Member 만 조회 (Team 은 조회 X) , 일반 조인은 연관된 엔티티를 함께 조회할 수 없다.
-            String query4 = "select m from Member m join m.team t ";
-            List<Member> resultList4 = em.createQuery(query4, Member.class)
-                    .getResultList();
-
-            // Fetch Join
-            String query5 = "select m from Member m join fetch m.team";
-            List<Member> resultList5 = em.createQuery(query5, Member.class)
+            // paging
+            String query = "select t from Team t";
+            List<Team> resultList = em.createQuery(query, Team.class)
+                    .setFirstResult(0)
+                    .setMaxResults(2)
                     .getResultList();
 
+            System.out.println("resultList.size() = " + resultList.size());
+
+            for (Team team1 : resultList) {
+                System.out.println("team1 = " + team1);
+                System.out.println("team1.members = " + team1.getMembers());
+            }
 
             tx.commit();
         } catch (Exception e) {
