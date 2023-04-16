@@ -1,7 +1,6 @@
 package dev.wony.jpa1;
 
 import dev.wony.jpa1.domain.Book;
-import dev.wony.jpa1.domain.Item;
 import dev.wony.jpa1.domain.Member;
 import dev.wony.jpa1.domain.Movie;
 
@@ -32,18 +31,18 @@ public class Jpa1Application {
 
             em.persist(movie);
 
-            // Type 다형성 쿼리
-            String query = "select i from Item i where type(i) in (Book, Movie)";
+            // Entity
+            String qlString = "select count(m) from Member m"; // Entity 직접 사용, count(m) = count(m.id) 로 entity 로 사용해도 id 로 사용 된다.
+            String qlString2 = "select count(m.id) from Member m"; // Entity ID 사용
+            Long count = em.createQuery(qlString, Long.class).getSingleResult();
 
-            em.createQuery(query, Item.class)
-                    .getResultList()
-                    .forEach(System.out::println);
+            // Entity 를 파라미터로 넘겨도  위와 같이 기본키를 사용하는걸로 동일하다 member = member.id
+            String qlString3 = "select m from Member m where m = :member"; // Entity 직접 사용
+            String qlString4 = "select m from Member m where m.id = :memberId"; // Entity ID 사용
 
-            // TREAT 다형성 쿼리
-            String query2 = "select i from Item i where treat(i as Book).author = '김영한'";
-            em.createQuery(query2, Item.class)
-                    .getResultList()
-                    .forEach(System.out::println);
+            // Entity 외래키 사용해도 위와 동일 하다.
+            String qlString5 = "select m from Member m where m.team = :team"; // Entity 직접 사용
+            String qlString6 = "select m from Member m where m.team.id = :teamId"; // Entity ID 사용
 
             // Lazy Loading 보다 Fetch Join 이 우선
             em.flush();
